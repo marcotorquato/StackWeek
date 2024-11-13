@@ -60,11 +60,11 @@ export const upsertTransaction = async (params: TransactionParams) => {
   if (params.id) {
     // Realiza o upsert (atualização ou criação)
     await db.transaction.upsert({
+      update: { ...params, userId },
+      create: { ...params, userId },
       where: {
         id: params.id,
       },
-      update: { ...params, userId },
-      create: { ...params, userId },
     })
   } else {
     // Chama a função createTransaction se o ID não for fornecido

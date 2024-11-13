@@ -1,4 +1,6 @@
+import { auth } from '@clerk/nextjs/server'
 import { BreadcrumbItem } from '@nextui-org/breadcrumbs'
+import { redirect } from 'next/navigation'
 import AddTransactionButton from '../_components/add_transaction_button'
 import {
   Breadcrumb,
@@ -12,7 +14,16 @@ import { db } from '../_lib/prisma'
 import { transactionColumns } from './_columns'
 
 const TransactionPage = async () => {
-  const transactions = await db.transaction.findMany({})
+  const { userId } = await auth()
+
+  if (!userId) {
+    redirect('/login')
+  }
+  const transactions = await db.transaction.findMany({
+    where: {
+      userId,
+    },
+  })
 
   return (
     <div className="space-y-6">
@@ -40,4 +51,5 @@ const TransactionPage = async () => {
     </div>
   )
 }
+
 export default TransactionPage
