@@ -1,0 +1,43 @@
+import { BreadcrumbItem } from '@nextui-org/breadcrumbs'
+import AddTransactionButton from '../_components/add_transaction_button'
+import {
+  Breadcrumb,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '../_components/ui/breadcrumb'
+import { DataTable } from '../_components/ui/data-table'
+import { db } from '../_lib/prisma'
+import { transactionColumns } from './_columns'
+
+const TransactionPage = async () => {
+  const transactions = await db.transaction.findMany({})
+
+  return (
+    <div className="space-y-6">
+      <div className="flex w-full items-center justify-between p-6">
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/">Home</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Transactions</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+        <h1 className="text-2xl font-bold">Transactions</h1>
+        <AddTransactionButton />
+      </div>
+      <div className="px-6">
+        <DataTable
+          columns={transactionColumns}
+          data={JSON.parse(JSON.stringify(transactions))}
+        />
+      </div>
+    </div>
+  )
+}
+export default TransactionPage
