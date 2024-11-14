@@ -4,6 +4,7 @@ import {
   LayersIcon,
   WalletIcon,
 } from 'lucide-react'
+import Link from 'next/link'
 import { Card } from '../_components/ui/card'
 import { Progress } from '../_components/ui/progress'
 import { TRANSACTION_CATEGORY_LABELS } from '../_constants/transactions'
@@ -114,17 +115,29 @@ const DashboardPage = async () => {
           </Card>
 
           <Card className="p-6">
-            <h2 className="font-semibold mb-4">Transactions</h2>
+            <div className="flex justify-between">
+              <h2 className="font-semibold mb-4">Transactions</h2>
+              <Link href="/transactions" className="text-primary">
+                See more
+              </Link>
+            </div>
             <div className="space-y-4">
-              {transactions.map((transaction, index) => (
-                <TransactionCard
-                  key={index}
-                  name={transaction.name}
-                  date={transaction.date}
-                  amount={transaction.amount.toNumber()}
-                  type={transaction.type}
-                />
-              ))}
+              {transactions
+                .sort(
+                  (a, b) =>
+                    new Date(b.createdAt).getTime() -
+                    new Date(a.createdAt).getTime(),
+                )
+                .slice(0, 10)
+                .map((transaction, index) => (
+                  <TransactionCard
+                    key={index}
+                    name={transaction.name}
+                    date={transaction.date}
+                    amount={transaction.amount.toNumber()}
+                    type={transaction.type}
+                  />
+                ))}
             </div>
           </Card>
         </div>
