@@ -2,46 +2,45 @@ import {
   TransactionCategory,
   TransactionPaymentMethod,
   TransactionType,
-} from "@prisma/client";
+} from '@prisma/client'
 
 export const TRANSACTION_CATEGORY_LABELS = {
-  EDUCATION: "Education",
-  ENTERTAINMENT: "Entertainment",
-  FOOD: "Food",
-  HEALTH: "Health",
-  HOUSING: "Housing",
-  OTHER: "Other",
-  SALARY: "Salary",
-  TRANSPORTATION: "Transportation",
-  UTILITY: "Utilities",
-};
+  EDUCATION: 'Education',
+  ENTERTAINMENT: 'Entertainment',
+  FOOD: 'Food',
+  HEALTH: 'Health',
+  HOUSING: 'Housing',
+  OTHER: 'Other',
+  SALARY: 'Salary',
+  TRANSPORTATION: 'Transportation',
+  UTILITY: 'Utilities',
+}
 
 export const TRANSACTION_PAYMENT_METHOD_LABELS = {
-  BANK_TRANSFER: "Bank Transfer",
-  BANK_SLIP: "Bank Slip",
-  CASH: "Cash",
-  CREDIT_CARD: "Credit Card",
-  DEBIT_CARD: "Debit Card",
-  OTHER: "Other",
-  PIX: "Pix",
-  PAYPAL: "PayPal",
-};
+  BANK_TRANSFER: 'Bank Transfer',
+  BANK_SLIP: 'Bank Slip',
+  CASH: 'Cash',
+  CREDIT_CARD: 'Credit Card',
+  DEBIT_CARD: 'Debit Card',
+  OTHER: 'Other',
+  PIX: 'Pix',
+  PAYPAL: 'PayPal',
+}
 
 export const TRANSACTION_TYPE_OPTIONS = [
   {
     value: TransactionType.EXPENSE,
-    label: "Expense",
+    label: 'Expense',
   },
   {
     value: TransactionType.DEPOSIT,
-    label: "Income",
+    label: 'Income',
   },
   {
     value: TransactionType.INVESTMENT,
-    label: "Investment",
+    label: 'Investment',
   },
-];
-
+]
 
 export const TRANSACTION_PAYMENT_METHOD_OPTIONS = [
   {
@@ -76,7 +75,7 @@ export const TRANSACTION_PAYMENT_METHOD_OPTIONS = [
     value: TransactionPaymentMethod.PIX,
     label: TRANSACTION_PAYMENT_METHOD_LABELS[TransactionPaymentMethod.PIX],
   },
-];
+]
 
 export const TRANSACTION_CATEGORY_OPTIONS = [
   {
@@ -115,4 +114,4 @@ export const TRANSACTION_CATEGORY_OPTIONS = [
     value: TransactionCategory.UTILITY,
     label: TRANSACTION_CATEGORY_LABELS[TransactionCategory.UTILITY],
   },
-];
+]

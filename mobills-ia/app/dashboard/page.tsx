@@ -1,39 +1,20 @@
-import { auth } from '@clerk/nextjs/server'
 import {
   ArrowDownIcon,
   ArrowUpIcon,
-  BitcoinIcon,
-  BuildingIcon,
-  DollarSignIcon,
-  GraduationCapIcon,
-  HomeIcon,
   LayersIcon,
   WalletIcon,
 } from 'lucide-react'
-import { redirect } from 'next/navigation'
 import { Card } from '../_components/ui/card'
+import { Progress } from '../_components/ui/progress'
+import { TRANSACTION_CATEGORY_LABELS } from '../_constants/transactions'
 import { db } from '../_lib/prisma'
+import { formatCurrency } from '../_lib/utils'
 import DashboardCard from './_components/DashboardCards'
 import TransactionCard from './_components/TransactionCard'
 
 const DashboardPage = async () => {
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('it-IT', {
-      style: 'currency',
-      currency: 'EUR',
-    }).format(value)
-  }
   // Obtendo as transações do banco de dados
-  const { userId } = await auth()
-
-  if (!userId) {
-    redirect('/login')
-  }
-  const transactions = await db.transaction.findMany({
-    where: {
-      userId,
-    },
-  })
+  const transactions = await db.transaction.findMany()
 
   // Calculando os totais
   const totalIncomes = transactions
@@ -48,30 +29,32 @@ const DashboardPage = async () => {
     .filter((transaction) => transaction.type === 'EXPENSE')
     .reduce((sum, transaction) => sum + transaction.amount.toNumber(), 0)
 
-  // Processando as transações para exibição na lista
-  const processedTransactions = transactions.map((transaction) => {
-    const isPositive = transaction.type === 'DEPOSIT'
-    const icon =
-      transaction.name === 'Salary' ? (
-        <DollarSignIcon className="w-4 h-4" />
-      ) : transaction.name === 'Bitcoin' ? (
-        <BitcoinIcon className="w-4 h-4" />
-      ) : transaction.name === 'Gym' ? (
-        <GraduationCapIcon className="w-4 h-4" />
-      ) : transaction.name === 'Rent' ? (
-        <HomeIcon className="w-4 h-4" />
-      ) : (
-        <BuildingIcon className="w-4 h-4" />
+  // Agrupando as transações por categoria e usando os rótulos de TRANSACTION_CATEGORY_LABELS
+  const expensesByCategory = Object.keys(TRANSACTION_CATEGORY_LABELS).map(
+    (category) => {
+      const categoryTransactions = transactions.filter(
+        (transaction) => transaction.category === category,
       )
 
-    return {
-      icon,
-      name: transaction.name,
-      date: transaction.date,
-      amount: `${isPositive ? '+' : '-'}€ ${transaction.amount}`,
-      positive: isPositive,
-    }
-  })
+      const totalAmount = categoryTransactions.reduce(
+        (sum, transaction) => sum + transaction.amount.toNumber(),
+        0,
+      )
+
+      const valuePercentage = totalExpenses
+        ? (totalAmount / totalExpenses) * 100
+        : 0
+
+      return {
+        label:
+          TRANSACTION_CATEGORY_LABELS[
+            category as keyof typeof TRANSACTION_CATEGORY_LABELS
+          ],
+        value: valuePercentage,
+        amount: formatCurrency(totalAmount),
+      }
+    },
+  )
 
   return (
     <div className="p-6 min-h-screen">
@@ -114,17 +97,31 @@ const DashboardPage = async () => {
           />
         </div>
 
-        <Card className="p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="font-semibold">Transactions</h2>
-            <button className="text-sm text-primary">See More</button>
-          </div>
-          <div className="space-y-4">
-            {processedTransactions.map((transaction, index) => (
-              <TransactionCard key={index} {...transaction} />
-            ))}
-          </div>
-        </Card>
+        <div className="grid gap-6 md:grid-cols-2">
+          <Card className="p-6">
+            <h2 className="font-semibold mb-4">Expenses by Category</h2>
+            <div className="space-y-4">
+              {expensesByCategory.map((item, index) => (
+                <div key={index} className="space-y-2">
+                  <div className="flex justify-between">
+                    <span>{item.label}</span>
+                    <span>{item.amount}</span>
+                  </div>
+                  <Progress value={item.value} className="h-2" />
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          <Card className="p-6">
+            <h2 className="font-semibold mb-4">Transactions</h2>
+            <div className="space-y-4">
+              {transactions.map((transaction, index) => (
+                <TransactionCard key={index} {...transaction} />
+              ))}
+            </div>
+          </Card>
+        </div>
       </div>
     </div>
   )

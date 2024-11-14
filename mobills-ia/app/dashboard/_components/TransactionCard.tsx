@@ -1,12 +1,13 @@
 // components/TransactionCard.tsx
 
+import { formatCurrency } from '@/app/_lib/utils'
 import { ReactNode } from 'react'
 
 interface TransactionCardProps {
   icon: ReactNode
   name: string
   date: Date | string
-  amount: string
+  amount: number
   positive: boolean
 }
 
@@ -31,7 +32,7 @@ export default function TransactionCard({
         </div>
       </div>
       <div className={positive ? 'text-green-500' : 'text-red-500'}>
-        {amount}
+        {formatCurrency(amount)}
       </div>
     </div>
   )
