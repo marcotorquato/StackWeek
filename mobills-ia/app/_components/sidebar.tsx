@@ -14,6 +14,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from './ui/sidebar'
+import { ThemeToggleButton } from './theme-toggle-button'
 
 // Menu items.
 const itemsSaveMoney = [
@@ -40,7 +41,6 @@ export function SidebarComponent() {
         </SidebarHeader>
 
         <SidebarMenu>
-          {/* Collapsible "iSaveMoney AI" */}
           <Collapsible
             defaultOpen={isOpen}
             onOpenChange={(open) => setIsOpen(open)}
@@ -73,6 +73,11 @@ export function SidebarComponent() {
             </CollapsibleContent>
           </Collapsible>
         </SidebarMenu>
+
+        {/* Botão de troca de tema */}
+        <div className="mt-auto mb-4">
+          <ThemeToggleButton />
+        </div>
       </SidebarContent>
     </Sidebar>
   )

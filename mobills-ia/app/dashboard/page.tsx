@@ -117,7 +117,13 @@ const DashboardPage = async () => {
             <h2 className="font-semibold mb-4">Transactions</h2>
             <div className="space-y-4">
               {transactions.map((transaction, index) => (
-                <TransactionCard key={index} {...transaction} />
+                <TransactionCard
+                  key={index}
+                  name={transaction.name}
+                  date={transaction.date}
+                  amount={transaction.amount.toNumber()}
+                  type={transaction.type}
+                />
               ))}
             </div>
           </Card>
