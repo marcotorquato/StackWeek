@@ -21,7 +21,7 @@ export default function TransactionCard({
   amount,
   type,
 }: TransactionCardProps) {
-  // Definir o ícone com base no nome da transação
+  // Defaut icons
   const icon: ReactNode =
     name === 'Salary' ? (
       <DollarSignIcon className="w-4 h-4" />
@@ -35,17 +35,15 @@ export default function TransactionCard({
       <BuildingIcon className="w-4 h-4" />
     )
 
-  // Formatar a data se for do tipo `Date`
   const displayDate =
     typeof date === 'string' ? date : date.toLocaleDateString()
 
-  // Definir a cor com base no tipo da transação
   const amountColor =
     type === 'DEPOSIT'
       ? 'text-green-500'
       : type === 'EXPENSE'
         ? 'text-red-500'
-        : 'text-white' // Cor branca para 'INVESTMENT'
+        : 'text-white'
 
   return (
     <div className="flex items-center justify-between">

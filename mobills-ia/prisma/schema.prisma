@@ -48,3 +48,64 @@ enum TransactionPaymentMethod {
   PAYPAL
   OTHER
 }
+
+model Order {
+  id          Int       @id @default(autoincrement())
+  requester   String    // Nome do solicitante
+  email       String    // Email do solicitante
+  requestDate DateTime  @default(now()) // Data da solicitação
+  destination Destination @relation(fields: [destinationId], references: [id])
+  destinationId Int
+  status      OrderStatus @default(REQUESTED) // Estado da solicitação
+  products    Product[]  // Relação com os produtos da solicitação
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Product {
+  id        Int             @id @default(autoincrement())
+  catalog   ProductCatalog? @relation(fields: [catalogId], references: [id]) // Produto do catálogo
+  catalogId Int?
+  name      String          // Nome do produto (se não vier do catálogo)
+  quantity  Int             // Quantidade solicitada
+  profile   Profile         @relation(fields: [profileId], references: [id])
+  profileId Int
+  order     Order           @relation(fields: [orderId], references: [id])
+  orderId   Int
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+}
+
+model ProductCatalog {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique // Nome do produto
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  Product Product[]
+}
+
+model Profile {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique // Ex: "Responsável Área", "Coordenador"
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  Product Product[]
+}
+
+model Destination {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique // Ex: "Sede São Paulo 1", "Sede São Paulo 2"
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  Order Order[]
+}
+
+enum OrderStatus {
+  REQUESTED
+  EM_APROVACAO
+  EM_PREPARACAO
+  ENTREGUE
+}

@@ -50,7 +50,7 @@ interface UpsertTransactionDialogProps {
   setIsOpen: (isOpen: boolean) => void
 }
 
-// Schema for form validation using Zod
+// Schema for form validation
 const formSchema = z.object({
   name: z.string().trim().min(1, {
     message: 'Name is required.',
@@ -227,7 +227,7 @@ const UpsertTransactionDialog = ({
               )}
             />
 
-            {/* FormField for the payment method (e.g., Cash, Credit Card) */}
+            {/* FormField for the payment method */}
             <FormField
               control={form.control}
               name="paymentMethod"
