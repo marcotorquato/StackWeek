@@ -51,23 +51,23 @@ enum TransactionPaymentMethod {
 
 model Order {
   id          Int       @id @default(autoincrement())
-  requester   String    // Nome do solicitante
-  email       String    // Email do solicitante
-  requestDate DateTime  @default(now()) // Data da solicitação
+  requester   String    
+  email       String    
+  requestDate DateTime  @default(now()) 
   destination Destination @relation(fields: [destinationId], references: [id])
   destinationId Int
-  status      OrderStatus @default(REQUESTED) // Estado da solicitação
-  products    Product[]  // Relação com os produtos da solicitação
+  status      OrderStatus @default(REQUESTED) 
+  products    Product[]  
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 }
 
 model Product {
   id        Int             @id @default(autoincrement())
-  catalog   ProductCatalog? @relation(fields: [catalogId], references: [id]) // Produto do catálogo
+  catalog   ProductCatalog? @relation(fields: [catalogId], references: [id]) 
   catalogId Int?
-  name      String          // Nome do produto (se não vier do catálogo)
-  quantity  Int             // Quantidade solicitada
+  name      String         
+  quantity  Int             
   profile   Profile         @relation(fields: [profileId], references: [id])
   profileId Int
   order     Order           @relation(fields: [orderId], references: [id])
@@ -78,7 +78,7 @@ model Product {
 
 model ProductCatalog {
   id        Int       @id @default(autoincrement())
-  name      String    @unique // Nome do produto
+  name      String    @unique 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
@@ -87,7 +87,7 @@ model ProductCatalog {
 
 model Profile {
   id        Int       @id @default(autoincrement())
-  name      String    @unique // Ex: "Responsável Área", "Coordenador"
+  name      String    @unique 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
@@ -96,7 +96,7 @@ model Profile {
 
 model Destination {
   id        Int       @id @default(autoincrement())
-  name      String    @unique // Ex: "Sede São Paulo 1", "Sede São Paulo 2"
+  name      String    @unique 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 
@@ -105,7 +105,7 @@ model Destination {
 
 enum OrderStatus {
   REQUESTED
-  EM_APROVACAO
-  EM_PREPARACAO
-  ENTREGUE
+  UNDER_APPROVAL
+  IN_PREPARATION
+  DELIVERED
 }
