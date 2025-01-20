@@ -1,58 +1,63 @@
-import { auth } from '@clerk/nextjs/server'
-import { BreadcrumbItem } from '@nextui-org/breadcrumbs'
-import { redirect } from 'next/navigation'
-import AddOrderButton from '../_components/add_orders_button'
 import {
   Breadcrumb,
+  BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '../_components/ui/breadcrumb'
-import { DataTable } from '../_components/ui/data-table'
+import { Button } from '../_components/ui/button'
 import { db } from '../_lib/prisma'
-import { transactionColumns } from './_columns'
+import { ordersColumns, OrderWithRelations } from './_columns'
+import { DataTable } from './_components/data-table'
 
-const TransactionPage = async () => {
-  const { userId } = await auth()
-
-  if (!userId) {
-    redirect('/login')
-  }
-  const transactions = await db.transaction.findMany({
-    where: {
-      userId,
+export default async function OrdersPage() {
+  const orders = await db.order.findMany({
+    include: {
+      destination: true,
+      products: {
+        include: {
+          profile: true,
+          catalog: true,
+        },
+      },
     },
     orderBy: {
       createdAt: 'desc',
     },
   })
 
+  const ordersData: OrderWithRelations[] = orders.map((order) => ({
+    ...order,
+    destination: order.destination,
+    products: order.products.map((product) => ({
+      ...product,
+      profile: product.profile,
+    })),
+  }))
+
   return (
-    <div className="space-y-6">
-      <div className="flex w-full items-center justify-between p-6">
-        <Breadcrumb>
-          <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/">Home</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbPage>IT Orders</BreadcrumbPage>
-            </BreadcrumbItem>
-          </BreadcrumbList>
-        </Breadcrumb>
-        <h1 className="text-2xl font-bold">IT Orders</h1>
-        <AddOrderButton />
+    <div className="container mx-auto py-8">
+      <div className="flex justify-between p-4">
+        <div className="flex w-full items-center justify-between p-6">
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink href="/">Home</BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage>Orders</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+          <h1 className="text-2xl font-bold">IT SALES</h1>
+          <Button className="bg-primary text-white py-2 px-4 rounded-md">
+            Add Order
+          </Button>
+        </div>
       </div>
-      <div className="px-6">
-        <DataTable
-          columns={transactionColumns}
-          data={JSON.parse(JSON.stringify(transactions))}
-        />
-      </div>
+      <DataTable columns={ordersColumns} data={ordersData} />
     </div>
   )
 }
-
-export default TransactionPage

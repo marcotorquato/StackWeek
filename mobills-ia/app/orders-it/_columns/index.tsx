@@ -1,69 +1,136 @@
 'use client'
 
 import { Button } from '@/app/_components/ui/button'
-import {
-  TRANSACTION_CATEGORY_LABELS,
-  TRANSACTION_PAYMENT_METHOD_LABELS,
-} from '@/app/_constants/transactions'
-import { Transaction } from '@prisma/client'
-import { ColumnDef } from '@tanstack/react-table'
-import { TrashIcon } from 'lucide-react'
-import EditTransactionButton from '../_components/edit_transaction_button'
-import TransactionTypeBadge from '../_components/type-badge'
 
-export const transactionColumns: ColumnDef<Transaction>[] = [
+import { OrderStatus } from '@prisma/client'
+import { ColumnDef } from '@tanstack/react-table'
+import { Eye, Pencil } from 'lucide-react'
+import DeleteOrderButton from '../_components/delete_orders_button'
+
+export type OrderWithRelations = {
+  id: number
+  requester: string
+  email: string
+  requestDate: Date
+  status: OrderStatus
+  createdAt: Date
+  updatedAt: Date
+  destination: {
+    id: number
+    name: string
+  }
+  products: {
+    id: number
+    name: string
+    quantity: number
+    profile: {
+      id: number
+      name: string
+    }
+    createdAt: Date
+    updatedAt: Date
+  }[]
+}
+
+export const ordersColumns: ColumnDef<OrderWithRelations>[] = [
   {
-    accessorKey: 'name',
-    header: 'Name',
+    accessorKey: 'requester',
+    header: 'Requester',
   },
   {
-    accessorKey: 'type',
-    header: 'Type',
-    cell: ({ row: { original: transaction } }) => (
-      <TransactionTypeBadge transaction={transaction} />
-    ),
+    accessorKey: 'email',
+    header: 'Email',
   },
   {
-    accessorKey: 'category',
-    header: 'Category',
-    cell: ({ row: { original: transaction } }) =>
-      TRANSACTION_CATEGORY_LABELS[transaction.category],
+    accessorKey: 'destination.name',
+    header: 'Destination',
   },
   {
-    accessorKey: 'paymentMethod',
-    header: 'Payment Method',
-    cell: ({ row: { original: transaction } }) =>
-      TRANSACTION_PAYMENT_METHOD_LABELS[transaction.paymentMethod],
+    accessorKey: 'status',
+    header: 'Status',
+    cell: ({ row }) => {
+      const order = row.original
+      switch (order.status) {
+        case 'REQUESTED':
+          return <span className="text-blue-500">Requested</span>
+        case 'UNDER_APPROVAL':
+          return <span className="text-yellow-500">Under Approval</span>
+        case 'IN_PREPARATION':
+          return <span className="text-orange-500">In Preparation</span>
+        case 'DELIVERED':
+          return <span className="text-green-500">Delivered</span>
+        default:
+          return <span className="text-gray-400">Unknown</span>
+      }
+    },
   },
   {
-    accessorKey: 'date',
-    header: 'Data',
-    cell: ({ row: { original: transaction } }) =>
-      new Date(transaction.date).toLocaleDateString('pt-BR', {
-        day: '2-digit',
-        month: 'long',
-        year: 'numeric',
-      }),
-  },
-  {
-    accessorKey: 'amount',
-    header: 'Amount',
-    cell: ({ row: { original: transaction } }) =>
-      new Intl.NumberFormat('pt-BR', {
-        style: 'currency',
-        currency: 'EUR',
-      }).format(Number(transaction.amount)),
-  },
-  {
-    accessorKey: 'actions',
-    header: 'Actions',
-    cell: ({ row: { original: transaction } }) => {
+    accessorKey: 'products',
+    header: 'Products',
+    cell: ({ row }) => {
+      const products = row.original.products
+      if (!products.length) return 'No products'
       return (
-        <div className="space-x-1">
-          <EditTransactionButton transaction={transaction} />
-          <Button variant="ghost" size="icon" className="text-muted-foreground">
-            <TrashIcon />
+        <ul className="list-disc list-inside">
+          {products.map((product) => (
+            <li key={product.id}>
+              {product.name} (x{product.quantity}) -{' '}
+              <span className="italic">{product.profile.name}</span>
+            </li>
+          ))}
+        </ul>
+      )
+    },
+  },
+  {
+    accessorKey: 'createdAt',
+    header: 'Created At',
+    cell: ({ row }) => {
+      const date = new Date(row.original.createdAt)
+      return date.toLocaleDateString('en-US', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      })
+    },
+  },
+  {
+    id: 'actions',
+    header: 'Actions',
+    cell: ({ row }) => {
+      const order = row.original
+
+      const handleView = () => {
+        console.log('View order details:', order.id)
+      }
+
+      const handleEdit = () => {
+        console.log('Edit order:', order.id)
+      }
+
+      return (
+        <div className="flex space-x-2">
+          <Button
+            variant="ghost"
+            onClick={handleView}
+            title="View"
+            size="icon"
+            className="text-muted-foreground"
+          >
+            <Eye className="h-4 w-4" />
           </Button>
+
+          <Button
+            variant="ghost"
+            onClick={handleEdit}
+            title="Edit"
+            size="icon"
+            className="text-muted-foreground"
+          >
+            <Pencil className="h-4 w-4" />
+          </Button>
+
+          <DeleteOrderButton orderId={order.id} orderNumber={order.id} />
         </div>
       )
     },
