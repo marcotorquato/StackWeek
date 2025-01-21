@@ -1,7 +1,6 @@
 'use client'
 
 import { Button } from '@/app/_components/ui/button'
-
 import { OrderStatus } from '@prisma/client'
 import { ColumnDef } from '@tanstack/react-table'
 import { Eye, Pencil } from 'lucide-react'
@@ -20,15 +19,17 @@ export type OrderWithRelations = {
     name: string
   }
   products: {
-    id: number
-    name: string
+    orderId: number
+    productId: number
     quantity: number
-    profile: {
+    product: {
       id: number
       name: string
+      profile: {
+        id: number
+        name: string
+      }
     }
-    createdAt: Date
-    updatedAt: Date
   }[]
 }
 
@@ -68,14 +69,14 @@ export const ordersColumns: ColumnDef<OrderWithRelations>[] = [
     accessorKey: 'products',
     header: 'Products',
     cell: ({ row }) => {
-      const products = row.original.products
-      if (!products.length) return 'No products'
+      const orderProducts = row.original.products
+      if (!orderProducts.length) return 'No products'
       return (
         <ul className="list-disc list-inside">
-          {products.map((product) => (
-            <li key={product.id}>
-              {product.name} (x{product.quantity}) -{' '}
-              <span className="italic">{product.profile.name}</span>
+          {orderProducts.map((op) => (
+            <li key={op.productId}>
+              {op.product.name} (x{op.quantity}) -{' '}
+              <span className="italic">{op.product.profile.name}</span>
             </li>
           ))}
         </ul>

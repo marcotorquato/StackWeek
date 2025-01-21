@@ -1,3 +1,4 @@
+import AddOrderButton from '../_components/add_orders_button'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -6,19 +7,28 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '../_components/ui/breadcrumb'
-import { Button } from '../_components/ui/button'
 import { db } from '../_lib/prisma'
 import { ordersColumns, OrderWithRelations } from './_columns'
 import { DataTable } from './_components/data-table'
 
 export default async function OrdersPage() {
+  // 1. Ajustar o findMany para incluir a tabela intermediária
   const orders = await db.order.findMany({
     include: {
       destination: true,
+      // 'products' agora é um array de OrderProduct
       products: {
         include: {
-          profile: true,
-          catalog: true,
+          // Cada OrderProduct tem:
+          //    orderId
+          //    productId
+          //    product: Product
+          product: {
+            include: {
+              profile: true,
+              catalog: true,
+            },
+          },
         },
       },
     },
@@ -28,11 +38,31 @@ export default async function OrdersPage() {
   })
 
   const ordersData: OrderWithRelations[] = orders.map((order) => ({
-    ...order,
-    destination: order.destination,
-    products: order.products.map((product) => ({
-      ...product,
-      profile: product.profile,
+    id: order.id,
+    requester: order.requester,
+    email: order.email,
+    requestDate: order.requestDate,
+    status: order.status,
+    createdAt: order.createdAt,
+    updatedAt: order.updatedAt,
+    destination: {
+      id: order.destination.id,
+      name: order.destination.name,
+    },
+    products: order.products.map((op) => ({
+      // Campos de OrderProduct
+      orderId: op.orderId,
+      productId: op.productId,
+      quantity: op.quantity,
+      // Dados do Product relacionado
+      product: {
+        id: op.product.id,
+        name: op.product.name,
+        profile: {
+          id: op.product.profile.id,
+          name: op.product.profile.name,
+        },
+      },
     })),
   }))
 
@@ -52,9 +82,7 @@ export default async function OrdersPage() {
             </BreadcrumbList>
           </Breadcrumb>
           <h1 className="text-2xl font-bold">IT SALES</h1>
-          <Button className="bg-primary text-white py-2 px-4 rounded-md">
-            Add Order
-          </Button>
+          <AddOrderButton />
         </div>
       </div>
       <DataTable columns={ordersColumns} data={ordersData} />

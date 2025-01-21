@@ -57,9 +57,9 @@ model Order {
   destination Destination @relation(fields: [destinationId], references: [id])
   destinationId Int
   status      OrderStatus @default(REQUESTED) 
-  products    Product[]  
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
+  products    OrderProduct[] // Relacionamento com a tabela intermediária
 }
 
 model Product {
@@ -67,13 +67,11 @@ model Product {
   catalog   ProductCatalog? @relation(fields: [catalogId], references: [id]) 
   catalogId Int?
   name      String         
-  quantity  Int             
   profile   Profile         @relation(fields: [profileId], references: [id])
   profileId Int
-  order     Order           @relation(fields: [orderId], references: [id])
-  orderId   Int
   createdAt DateTime        @default(now())
   updatedAt DateTime        @updatedAt
+  orderProducts OrderProduct[] // Relacionamento com a tabela intermediária
 }
 
 model ProductCatalog {
@@ -81,8 +79,7 @@ model ProductCatalog {
   name      String    @unique 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
-
-  Product Product[]
+  products  Product[] // Relacionamento com a tabela Product
 }
 
 model Profile {
@@ -90,8 +87,7 @@ model Profile {
   name      String    @unique 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
-
-  Product Product[]
+  products  Product[] // Relacionamento com a tabela Product
 }
 
 model Destination {
@@ -99,8 +95,16 @@ model Destination {
   name      String    @unique 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
+  orders    Order[]   // Relacionamento com a tabela Order
+}
 
-  Order Order[]
+model OrderProduct { // Tabela intermediária entre Order e Product
+  orderId   Int
+  productId Int
+  quantity  Int
+  order     Order   @relation(fields: [orderId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
+  @@id([orderId, productId])  // Chave composta para garantir unicidade
 }
 
 enum OrderStatus {
