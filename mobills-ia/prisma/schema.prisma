@@ -50,61 +50,48 @@ enum TransactionPaymentMethod {
 }
 
 model Order {
-  id          Int       @id @default(autoincrement())
-  requester   String    
-  email       String    
-  requestDate DateTime  @default(now()) 
-  destination Destination @relation(fields: [destinationId], references: [id])
-  destinationId Int
-  status      OrderStatus @default(REQUESTED) 
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  products    OrderProduct[] // Relacionamento com a tabela intermediária
+  id             Int       @id @default(autoincrement())
+  ticketNumber   String    @unique
+  email          String
+  profile        String
+  destination    String
+  note           String?
+  status         OrderStatus @default(REQUESTED)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  pdfAttachment  String?  
+  products       OrderProduct[]
 }
 
 model Product {
-  id        Int             @id @default(autoincrement())
-  catalog   ProductCatalog? @relation(fields: [catalogId], references: [id]) 
-  catalogId Int?
-  name      String         
-  profile   Profile         @relation(fields: [profileId], references: [id])
-  profileId Int
-  createdAt DateTime        @default(now())
-  updatedAt DateTime        @updatedAt
-  orderProducts OrderProduct[] // Relacionamento com a tabela intermediária
-}
-
-model ProductCatalog {
-  id        Int       @id @default(autoincrement())
-  name      String    @unique 
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  products  Product[] // Relacionamento com a tabela Product
-}
-
-model Profile {
-  id        Int       @id @default(autoincrement())
-  name      String    @unique 
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  products  Product[] // Relacionamento com a tabela Product
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 model Destination {
-  id        Int       @id @default(autoincrement())
-  name      String    @unique 
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  orders    Order[]   // Relacionamento com a tabela Order
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
-model OrderProduct { // Tabela intermediária entre Order e Product
-  orderId   Int
-  productId Int
-  quantity  Int
-  order     Order   @relation(fields: [orderId], references: [id])
-  product   Product @relation(fields: [productId], references: [id])
-  @@id([orderId, productId])  // Chave composta para garantir unicidade
+model Profile {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model OrderProduct {
+  id          Int       @id @default(autoincrement())
+  orderId     Int
+  productId   Int
+  quantity    Int
+  order       Order     @relation(fields: [orderId], references: [id])
+  product     Product   @relation(fields: [productId], references: [id])
+  @@unique([orderId, productId]) // Ensures a product can't be duplicated in the same order
 }
 
 enum OrderStatus {
